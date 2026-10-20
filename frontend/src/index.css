@@ -1,0 +1,106 @@
+@import "tailwindcss";
+
+:root {
+    color: #f5f0e8;
+    background: #101515;
+    font-family: Georgia, 'Times New Roman', serif;
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-width: 320px;
+    min-height: 100vh;
+    background: radial-gradient(circle at 85% 12%, rgba(204, 134, 66, 0.17), transparent 28rem), linear-gradient(135deg, #101515 0%, #172121 54%, #24372f 100%);
+}
+
+button, input { font: inherit; }
+button { color: inherit; }
+
+.app-shell { width: min(1180px, calc(100% - 48px)); margin: 0 auto; padding: 30px 0 50px; }
+.app-header, .section-heading, .brand-lockup, .connection-pill, .player-panel, .player-controls, .song-row, .search-field { display: flex; align-items: center; }
+.app-header { justify-content: space-between; border-bottom: 1px solid rgba(245, 240, 232, 0.16); padding-bottom: 22px; }
+.brand-lockup { gap: 12px; }
+.brand-mark { display: grid; width: 42px; height: 42px; place-items: center; border: 1px solid #d78b4e; border-radius: 50%; color: #f0a15b; font-size: 27px; }
+.brand-name, .brand-tagline, .eyebrow, .intro-copy, .player-copy p, .player-note, .state-message, .derived-title { margin: 0; }
+.brand-name { color: #f6c28e; font-size: 1.2rem; font-weight: 700; letter-spacing: 0.03em; }
+.brand-tagline { color: #91a49b; font-family: 'Trebuchet MS', sans-serif; font-size: 0.72rem; letter-spacing: 0.05em; }
+.connection-pill, .count-badge { gap: 8px; border: 1px solid rgba(245, 240, 232, 0.17); border-radius: 999px; color: #b5c3bc; font-family: 'Trebuchet MS', sans-serif; font-size: 0.75rem; padding: 8px 12px; }
+.status-dot { width: 7px; height: 7px; border-radius: 50%; background: #7d8780; }
+.status-dot.online { background: #9ccf7b; box-shadow: 0 0 0 4px rgba(156, 207, 123, 0.1); }
+.intro-block { max-width: 650px; padding: 76px 0 46px; }
+.eyebrow { color: #e59a5c; font-family: 'Trebuchet MS', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+h1, h2 { margin: 0; }
+h1 { margin-top: 12px; color: #fff7ed; font-size: clamp(3.1rem, 7vw, 6.4rem); font-weight: 400; line-height: 0.92; }
+h1 span { color: #e59a5c; font-style: italic; }
+.intro-copy { max-width: 510px; margin-top: 22px; color: #aab9b1; font-family: 'Trebuchet MS', sans-serif; font-size: 0.95rem; line-height: 1.6; }
+.content-grid { display: grid; grid-template-columns: minmax(0, 1.45fr) minmax(290px, 0.8fr); gap: 18px; }
+.panel, .player-panel { border: 1px solid rgba(245, 240, 232, 0.14); background: rgba(13, 20, 19, 0.58); box-shadow: 0 22px 55px rgba(0, 0, 0, 0.16); }
+.panel { min-height: 360px; padding: 26px; }
+.section-heading { justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+h2 { margin-top: 5px; color: #fff7ed; font-size: 1.7rem; font-weight: 400; }
+.count-badge { border-color: rgba(229, 154, 92, 0.34); color: #f0a15b; }
+.search-field { gap: 9px; border-bottom: 1px solid rgba(245, 240, 232, 0.2); margin-bottom: 15px; padding: 8px 2px 11px; color: #e59a5c; }
+.search-field input, .form-field input { width: 100%; border: 0; outline: 0; background: transparent; color: #fff7ed; }
+.search-field input::placeholder, .form-field input::placeholder { color: #7f9187; }
+.song-list { display: grid; max-height: clamp(300px, 48vh, 540px); gap: 5px; overflow-y: auto; padding-right: 4px; overscroll-behavior: contain; scrollbar-width: none; }
+.song-list::-webkit-scrollbar { display: none; }
+.song-row { width: 100%; gap: 13px; border: 1px solid transparent; border-radius: 2px; padding: 13px 10px; background: transparent; cursor: pointer; text-align: left; transition: background 160ms ease, border-color 160ms ease; }
+.song-row { position: relative; }
+.song-row:hover, .song-row.selected { border-color: rgba(229, 154, 92, 0.25); background: rgba(229, 154, 92, 0.09); }
+.song-index { width: 22px; color: #e59a5c; text-align: center; }
+.song-index.favorite { color: #f2c56e; }
+.song-copy { display: grid; min-width: 0; flex: 1; gap: 4px; }
+.song-copy strong { overflow: hidden; color: #f8eee2; font-size: 1rem; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+.song-copy span, .song-meta, .form-field, .file-dropzone, .player-status, .player-note { color: #8fa198; font-family: 'Trebuchet MS', sans-serif; font-size: 0.73rem; }
+.song-meta { display: grid; gap: 3px; max-width: 120px; text-align: right; }
+.song-meta small { color: #65766f; font-size: 0.65rem; }
+.song-menu-wrap { position: relative; flex: 0 0 auto; }
+.song-menu-button { display: grid; width: 36px; height: 36px; place-items: center; border: 0; border-radius: 50%; background: transparent; color: #b5c3bc; cursor: pointer; font-size: 1.35rem; line-height: 1; }
+.song-menu-button:hover, .song-menu-button:focus-visible { background: rgba(229, 154, 92, 0.16); color: #f8eee2; outline: none; }
+.song-menu { position: absolute; z-index: 2; top: calc(100% + 4px); right: 0; min-width: 190px; border: 1px solid rgba(245, 240, 232, 0.18); background: #18221f; box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3); }
+.song-menu button { width: 100%; border: 0; padding: 11px 13px; background: transparent; color: #f5f0e8; cursor: pointer; font-family: 'Trebuchet MS', sans-serif; font-size: 0.73rem; text-align: left; }
+.song-menu button:hover, .song-menu button:focus-visible { background: rgba(229, 154, 92, 0.14); outline: none; }
+.song-menu button:disabled { cursor: wait; opacity: 0.55; }
+.state-message { padding: 35px 10px; color: #91a49b; font-family: 'Trebuchet MS', sans-serif; font-size: 0.83rem; line-height: 1.5; }
+.error-message { color: #f2a18b; }
+.success-message { color: #a8d790; font-family: 'Trebuchet MS', sans-serif; font-size: 0.78rem; }
+.upload-form { display: grid; gap: 16px; }
+.file-dropzone { display: grid; min-height: 145px; place-items: center; align-content: center; gap: 8px; border: 1px dashed rgba(229, 154, 92, 0.5); padding: 18px; cursor: pointer; text-align: center; }
+.file-dropzone input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.file-dropzone strong { max-width: 100%; overflow: hidden; color: #f8eee2; font-size: 0.95rem; font-weight: 400; text-overflow: ellipsis; white-space: nowrap; }
+.file-mark, .upload-icon { color: #e59a5c; font-size: 1.45rem; }
+.form-field { display: grid; gap: 7px; }
+.form-field span { color: #b5c3bc; }
+.form-field em { color: #6c7b73; font-size: 0.65rem; font-style: normal; }
+.form-field input { border-bottom: 1px solid rgba(245, 240, 232, 0.2); padding: 8px 0; font-family: 'Trebuchet MS', sans-serif; font-size: 0.85rem; }
+.derived-title { color: #d8a375; font-family: 'Trebuchet MS', sans-serif; font-size: 0.75rem; }
+.primary-button { border: 0; border-radius: 2px; padding: 12px 15px; background: #e59a5c; color: #1b211d; cursor: pointer; font-family: 'Trebuchet MS', sans-serif; font-size: 0.76rem; font-weight: 700; }
+.primary-button:disabled { cursor: wait; opacity: 0.55; }
+.player-panel { position: relative; display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 18px; align-items: center; margin-top: 18px; padding: 20px 24px; }
+.player-art { display: grid; width: 62px; height: 62px; place-items: center; border: 1px solid #d78b4e; border-radius: 50%; color: #e59a5c; font-size: 1.8rem; }
+.player-copy { min-width: 0; }
+.player-copy h2 { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.player-copy p:not(.eyebrow) { margin-top: 5px; overflow: hidden; color: #91a49b; text-overflow: ellipsis; white-space: nowrap; }
+.player-status { display: flex; align-items: center; gap: 7px; }
+.player-progress { display: flex; grid-column: 1 / -1; align-items: center; gap: 10px; color: #65766f; font-family: 'Trebuchet MS', sans-serif; font-size: 0.68rem; }
+.player-progress input { min-width: 0; flex: 1; accent-color: #e59a5c; cursor: pointer; }
+.player-controls { grid-column: 1 / -1; justify-content: center; gap: 10px; border-top: 1px solid rgba(245, 240, 232, 0.1); padding-top: 15px; }
+.player-controls button { width: 34px; height: 34px; border: 1px solid rgba(245, 240, 232, 0.2); border-radius: 50%; background: transparent; color: #aab9b1; cursor: not-allowed; }
+.player-controls .play-button { width: 42px; height: 42px; border-color: #e59a5c; color: #e59a5c; }
+.player-note { grid-column: 1 / -1; color: #65766f; text-align: center; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
+
+@media (max-width: 760px) {
+    .app-shell { width: min(100% - 28px, 560px); padding-top: 18px; }
+    .intro-block { padding: 58px 0 34px; }
+    .content-grid { grid-template-columns: 1fr; }
+    .panel { padding: 20px; }
+    .song-list { max-height: min(52vh, 420px); }
+    .player-panel { grid-template-columns: auto minmax(0, 1fr); padding: 18px; }
+    .player-status { grid-column: 2; }
+    .player-progress { grid-column: 1 / -1; }
+}
