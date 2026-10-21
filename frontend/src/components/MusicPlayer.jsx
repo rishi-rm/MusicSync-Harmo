@@ -9,7 +9,7 @@ function formatTime(seconds) {
     return `${minutes}:${remainingSeconds}`
 }
 
-const MusicPlayer = forwardRef(function MusicPlayer({ song, playRequestId, remotePlaybackCommand, onSongEnded, onLocalPlay, onLocalPause, onLocalSeek }, ref) {
+const MusicPlayer = forwardRef(function MusicPlayer({ song, playRequestId, remotePlaybackCommand, onSongEnded, onPrevious, onNext, canNavigate, onLocalPlay, onLocalPause, onLocalSeek }, ref) {
     const audioRef = useRef(null)
     const activeSongRef = useRef(song)
     const sourceSongIdRef = useRef(null)
@@ -328,35 +328,34 @@ const MusicPlayer = forwardRef(function MusicPlayer({ song, playRequestId, remot
         onLocalSeekRef.current?.(audio.currentTime, sourceSongIdRef.current)
     }
 
-    function handleRestart() {
-        const audio = audioRef.current
-        if (!audio) return
-
-        audio.currentTime = 0
-        setCurrentTime(0)
-        onLocalSeekRef.current?.(0, sourceSongIdRef.current)
-    }
-
-    function handleEnd() {
-        const audio = audioRef.current
-        if (!audio || !duration) return
-
-        audio.currentTime = duration
-        setCurrentTime(duration)
-        onLocalSeekRef.current?.(duration, sourceSongIdRef.current)
-    }
-
     const hasSong = Boolean(song?._id)
     const currentPlaybackError = playbackError?.songId === song?._id ? playbackError : null
 
     return (
         <section className="player-panel" aria-labelledby="player-heading">
             <audio ref={audioRef} preload="metadata" />
-            <div className="player-art" aria-hidden="true">♫</div>
             <div className="player-copy">
-                <p className="eyebrow">Now selected</p>
-                <h2 id="player-heading">{song ? song.title : 'Choose a song'}</h2>
-                <p>{song ? `${song.artist || 'Unknown Artist'}${song.album ? ` · ${song.album}` : ''}` : 'Select a track from your library to prepare playback.'}</p>
+                <span className="player-art" aria-hidden="true">♫</span>
+                <div className="player-track-copy">
+                    <p className="eyebrow">Now playing</p>
+                    <h2 id="player-heading" title={song?.title || 'Choose a song'}>{song ? song.title : 'Choose a song'}</h2>
+                    <p>{song ? `${song.artist || 'Unknown Artist'}${song.album ? ` · ${song.album}` : ''}` : 'Select a track from your library'}</p>
+                </div>
+            </div>
+            <div className="player-controls" aria-label="Playback controls">
+                <button type="button" onClick={onPrevious} disabled={!hasSong || !canNavigate} aria-label="Previous track" title="Previous track">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 5v14M19 6 8 12l11 6z" /></svg>
+                </button>
+                <button className="play-button" type="button" onClick={isPlaying || isBuffering ? handlePause : handlePlay} disabled={!hasSong} aria-label={isPlaying || isBuffering ? 'Pause song' : 'Play song'} title={isPlaying || isBuffering ? 'Pause' : 'Play'}>
+                    {isBuffering
+                        ? <span className="player-loading-mark" aria-hidden="true">…</span>
+                        : isPlaying
+                            ? <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5h3v14H8zm6 0h3v14h-3z" /></svg>
+                            : <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 5 12 7-12 7z" /></svg>}
+                </button>
+                <button type="button" onClick={onNext} disabled={!hasSong || !canNavigate} aria-label="Next track" title="Next track">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18 5v14M5 6l11 6-11 6z" /></svg>
+                </button>
             </div>
             <div className="player-progress">
                 <span>{formatTime(currentTime)}</span>
@@ -367,6 +366,7 @@ const MusicPlayer = forwardRef(function MusicPlayer({ song, playRequestId, remot
                     max={duration || 0}
                     step="0.1"
                     value={Math.min(currentTime, duration || 0)}
+                    style={{ '--seek-progress': `${duration ? (currentTime / duration) * 100 : 0}%` }}
                     onChange={handleSeek}
                     onMouseUp={handleSeekCommit}
                     onTouchEnd={handleSeekCommit}
@@ -374,13 +374,6 @@ const MusicPlayer = forwardRef(function MusicPlayer({ song, playRequestId, remot
                     disabled={!hasSong || !duration}
                 />
                 <span>{formatTime(duration)}</span>
-            </div>
-            <div className="player-controls" aria-label="Playback controls">
-                <button type="button" onClick={handleRestart} disabled={!hasSong} aria-label="Restart song">↺</button>
-                <button className="play-button" type="button" onClick={isPlaying || isBuffering ? handlePause : handlePlay} disabled={!hasSong} aria-label={isPlaying || isBuffering ? 'Pause song' : 'Play song'}>
-                    {isBuffering ? '…' : isPlaying ? 'Ⅱ' : '▶'}
-                </button>
-                <button type="button" onClick={handleEnd} disabled={!hasSong || !duration} aria-label="End song">↻</button>
             </div>
             {currentPlaybackError && (
                 <div className="player-note error-message" role="alert">

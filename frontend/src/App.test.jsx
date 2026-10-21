@@ -155,6 +155,7 @@ describe('library playback', () => {
                 position: 14
             })
         })
+        expect(screen.getByRole('heading', { name: 'First Track' })).toBeTruthy()
 
         Object.defineProperty(audio, 'readyState', { configurable: true, value: 1 })
         fireEvent(audio, new Event('loadedmetadata'))
@@ -175,6 +176,24 @@ describe('library playback', () => {
         expect(audio.currentTime).toBe(22)
         await screen.findByRole('button', { name: 'Play song' })
         expect(mocks.emitted.filter(([event]) => ['play', 'pause', 'seek'].includes(event))).toHaveLength(0)
+    })
+
+    it('uses the existing track selection flow for previous and next controls', async () => {
+        await renderApp()
+        clickSong('First Track')
+        await screen.findByRole('button', { name: 'Pause song' })
+
+        fireEvent.click(screen.getByRole('button', { name: 'Next track' }))
+        expect(screen.getByRole('heading', { name: 'Second Track' })).toBeTruthy()
+        await waitFor(() => {
+            expect(mocks.emitted).toContainEqual(['play', expect.objectContaining({ songId: 'song-2' })])
+        })
+
+        fireEvent.click(screen.getByRole('button', { name: 'Previous track' }))
+        expect(screen.getByRole('heading', { name: 'First Track' })).toBeTruthy()
+        await waitFor(() => {
+            expect(mocks.emitted).toContainEqual(['play', expect.objectContaining({ songId: 'song-1' })])
+        })
     })
 
     it('ignores an older play result after a rapid track change', async () => {

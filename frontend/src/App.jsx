@@ -133,6 +133,17 @@ export default function App() {
         }
     }
 
+    function handleTrackNavigation(direction) {
+        const queue = songsRef.current
+        if (!currentSong?._id || queue.length < 2) return
+
+        const currentIndex = queue.findIndex((song) => song._id === currentSong._id)
+        if (currentIndex < 0) return
+
+        const nextIndex = (currentIndex + direction + queue.length) % queue.length
+        selectSong(queue[nextIndex], true, true)
+    }
+
     function handleSongEnded(endedSong) {
         const nextSongs = songsRef.current.filter((song) => song._id !== endedSong._id)
         if (nextSongs.length === 0) return
@@ -247,6 +258,9 @@ export default function App() {
                 playRequestId={playRequestId}
                 remotePlaybackCommand={remotePlaybackCommand}
                 onSongEnded={handleSongEnded}
+                onPrevious={() => handleTrackNavigation(-1)}
+                onNext={() => handleTrackNavigation(1)}
+                canNavigate={songs.length > 1}
                 onLocalPlay={(position, songId) => emitPlaybackEvent('play', position, songId)}
                 onLocalPause={(position, songId) => emitPlaybackEvent('pause', position, songId)}
                 onLocalSeek={(position, songId) => emitPlaybackEvent('seek', position, songId)}
