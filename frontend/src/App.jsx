@@ -14,9 +14,12 @@ export default function App() {
     const [favoriteError, setFavoriteError] = useState('')
     const [favoriteUpdatingId, setFavoriteUpdatingId] = useState(null)
     const [remotePlaybackCommand, setRemotePlaybackCommand] = useState(null)
+    const [playRequestId, setPlayRequestId] = useState(null)
+    const playerRef = useRef(null)
     const songsRef = useRef([])
     const socketRef = useRef(null)
     const pendingPlaybackStateRef = useRef(null)
+    const pendingLocalSelectionEchoRef = useRef(null)
 
     songsRef.current = songs
 
@@ -37,6 +40,7 @@ export default function App() {
                     if (pendingSong) {
                         pendingPlaybackStateRef.current = null
                         setCurrentSong(pendingSong)
+                        setPlayRequestId(null)
                         setRemotePlaybackCommand({
                             type: pendingState.isPlaying ? 'play' : 'pause',
                             songId: pendingState.currentSongId,
@@ -69,6 +73,7 @@ export default function App() {
 
         socket.on('disconnect', (reason) => {
             console.log('[SOCKET] Disconnected:', reason)
+            pendingLocalSelectionEchoRef.current = null
         })
 
         socket.on('connect_error', (error) => {
@@ -83,7 +88,17 @@ export default function App() {
                 return
             }
 
+            const pendingLocalSongId = pendingLocalSelectionEchoRef.current
+            if (pendingLocalSongId && pendingLocalSongId !== state.currentSongId) {
+                return
+            }
+            if (pendingLocalSongId && state.currentSongId === pendingLocalSongId) {
+                pendingLocalSelectionEchoRef.current = null
+                if (!state.isPlaying) return
+            }
+
             setCurrentSong(remoteSong)
+            setPlayRequestId(null)
             setRemotePlaybackCommand({
                 type: state.isPlaying ? 'play' : 'pause',
                 songId: state.currentSongId,
@@ -97,13 +112,33 @@ export default function App() {
         }
     }, [])
 
-    function selectSong(song, announce = true) {
+    function selectSong(song, announce = true, fromLibraryClick = false) {
+        if (announce && socketRef.current?.connected) {
+            pendingLocalSelectionEchoRef.current = song._id
+        }
+
+        if (fromLibraryClick) {
+            playerRef.current?.playSong(song)
+            setPlayRequestId(null)
+        } else {
+            setPlayRequestId((currentId) => (currentId ?? 0) + 1)
+        }
+
         setCurrentSong(song)
+        setRemotePlaybackCommand(null)
 
         if (announce && socketRef.current?.connected) {
             console.log('[SOCKET] Emitting song change:', song._id)
             socketRef.current.emit('change_current_song', song._id)
         }
+    }
+
+    function handleSongEnded(endedSong) {
+        const nextSongs = songsRef.current.filter((song) => song._id !== endedSong._id)
+        if (nextSongs.length === 0) return
+
+        const nextSong = nextSongs[Math.floor(Math.random() * nextSongs.length)]
+        selectSong(nextSong)
     }
 
     function handleSongUploaded(uploadedSongs) {
@@ -139,11 +174,11 @@ export default function App() {
         }
     }
 
-    function emitPlaybackEvent(event, position) {
-        if (!socketRef.current?.connected || !currentSong?._id) return
+    function emitPlaybackEvent(event, position, songId = currentSong?._id) {
+        if (!socketRef.current?.connected || !songId) return
 
         const payload = {
-            songId: currentSong._id,
+            songId,
             position,
             timestamp: Date.now()
         }
@@ -196,7 +231,7 @@ export default function App() {
                     selectedSongId={currentSong?._id}
                     searchQuery={searchQuery}
                     onSearchChange={setSearchQuery}
-                    onSelectSong={selectSong}
+                    onSelectSong={(song) => selectSong(song, true, true)}
                     onFavoriteChange={handleFavoriteChange}
                     favoriteUpdatingId={favoriteUpdatingId}
                     loading={loadingSongs}
@@ -207,12 +242,14 @@ export default function App() {
             </div>
 
             <MusicPlayer
-                key={currentSong?._id || 'empty-player'}
+                ref={playerRef}
                 song={currentSong}
+                playRequestId={playRequestId}
                 remotePlaybackCommand={remotePlaybackCommand}
-                onLocalPlay={(position) => emitPlaybackEvent('play', position)}
-                onLocalPause={(position) => emitPlaybackEvent('pause', position)}
-                onLocalSeek={(position) => emitPlaybackEvent('seek', position)}
+                onSongEnded={handleSongEnded}
+                onLocalPlay={(position, songId) => emitPlaybackEvent('play', position, songId)}
+                onLocalPause={(position, songId) => emitPlaybackEvent('pause', position, songId)}
+                onLocalSeek={(position, songId) => emitPlaybackEvent('seek', position, songId)}
             />
         </main>
     )
